@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "BTU GPA | Realtime Selected Courses GPA Calculator",
-  "version": "1.0",
-  "description": "BTU GPA | Realtime Selected Courses GPA Calculator",
+  "name": "GPA-AUTO | BTU",
+  "version": "0.0.1",
+  "description": "BTU GPA | Realtime Calculator of Selected Courses",
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",

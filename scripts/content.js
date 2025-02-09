@@ -53,7 +53,7 @@ function showGpaAfterElement(element, point_credit_pairs) {
 
         const averga_points = document.createElement('p');
         // averga_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
-        averga_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)}`;
+        averga_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
         element.insertAdjacentElement('afterend', averga_points);
 
         const finished_count_p = document.createElement('p');
@@ -69,4 +69,42 @@ function showGpaAfterElement(element, point_credit_pairs) {
     } else {
         console.log("not found element")
     }
+}
+
+
+function calcGradeLetter(point){
+    if(point === 100){
+        return 'A+ (Perfect)'
+    }
+    if(point > 95){
+        return 'A+'
+    }
+    if(point > 90){
+        return 'A'
+    }
+    if(point > 85){
+        return 'B+'
+    }
+    if(point > 80){
+        return 'B'
+    }
+    if(point > 75){
+        return 'C+'
+    }
+    if(point > 70){
+        return 'C'
+    }
+    if(point > 65){
+        return 'D+'
+    }
+    if(point > 60){
+        return 'D'
+    }
+    if(point > 55){
+        return 'C+'
+    }
+    if(point > 50){
+        return 'C'
+    }
+    return ''
 }

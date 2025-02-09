@@ -74,7 +74,7 @@ function showGpaAfterElement(element, point_credit_pairs) {
 
 function calcGradeLetter(point){
     if(point === 100){
-        return 'A+ (Perfect)'
+        return 'A+ Perfect'
     }
     if(point > 95){
         return 'A+'

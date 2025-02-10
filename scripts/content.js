@@ -1,5 +1,12 @@
 // Calculate GPA per class (X is a point/qula) - GPA = (X-50) x 0,06+1.0
 const table = document.querySelector('table');
+const fake_points_credits_pairs = [
+    [81, 6],
+    [91, 6],
+    [97, 6],
+    [54, 4],
+    [98, 3],
+]
 let point_credit_pairs = []; // [[POINT, CREDIT]]
 if (table) {
     const rows = table.querySelectorAll('tr');
@@ -48,13 +55,13 @@ function showGpaAfterElement(element, point_credit_pairs) {
         const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
             point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0);
         const weighted_average_p = document.createElement('p');
-        weighted_average_p.textContent = `შერჩევითი საშუალო კრედიტების წონის მიხედვით ${weightedAverage.toFixed(2)}`;
+        weighted_average_p.textContent = `შერჩევითი საშუალო ${weightedAverage.toFixed(2)} (${calcGradeLetter(points_sum / len)})`;
         element.insertAdjacentElement('afterend', weighted_average_p);
 
-        const averga_points = document.createElement('p');
-        // averga_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
-        averga_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
-        element.insertAdjacentElement('afterend', averga_points);
+        const average_points = document.createElement('p');
+        // average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
+        average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
+        element.insertAdjacentElement('afterend', average_points);
 
         const finished_count_p = document.createElement('p');
         finished_count_p.textContent = `ჩაბარებული საგნები ${point_credit_pairs.length}`;

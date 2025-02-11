@@ -1,13 +1,7 @@
-// Calculate GPA per class (X is a point/qula) - GPA = (X-50) x 0,06+1.0
+let extracted_point_credit_pairs = []; // [[POINT, CREDIT]]
+
+// Extracting points and credits from table (only finished classes)
 const table = document.querySelector('table');
-const fake_points_credits_pairs = [
-    [81, 6],
-    [91, 6],
-    [97, 6],
-    [54, 4],
-    [98, 3],
-]
-let point_credit_pairs = []; // [[POINT, CREDIT]]
 if (table) {
     const rows = table.querySelectorAll('tr');
     rows.forEach(row => {
@@ -17,24 +11,23 @@ if (table) {
             if (tds[3] && tds[5] && tds[0].classList.contains('text-success')) {
                 const point = Number(tds[3].textContent.trim());
                 const credit = Number(tds[5].textContent.trim());
-                point_credit_pairs.push([point, credit]);
+                extracted_point_credit_pairs.push([point, credit]);
             }
         }
     });
 
-    showGpaAfterElement(table, point_credit_pairs);
+    showGpaAfterElement(table, extracted_point_credit_pairs);
 } else {
     console.log(table, "არჩეული კურსების TABLE Not Found");
 }
 
+// Calculating GPA Σ(GPA x CR) / ΣCR
 function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
-    const credits_sum = point_credit_pairs.reduce((acc, curr) => acc + curr[1], 0)
-    const points_sum = point_credit_pairs.reduce((acc, curr) => acc + curr[0], 0)
+    const credits_sum = point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0)
+    const points_sum = point_credit_pairs.reduce((acc, [point, _]) => acc + point, 0)
 
     // GPA(S) = Σ(GPA x CR) / ΣCR
-    const gpa_times_credits_sum = point_credit_pairs.reduce((acc, curr) => {
-            const point = curr[0];
-            const credit = curr[1];
+    const gpa_times_credits_sum = point_credit_pairs.reduce((acc, [point, credit]) => {
             const gpa_per_class = (point - 50) * 0.06 + 1
 
             const gpa_times_credit = gpa_per_class * credit;
@@ -49,7 +42,7 @@ function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
 function showGpaAfterElement(element, point_credit_pairs) {
     if (element) {
         const [gpa_semester, points_sum, len] = calculateGpa(point_credit_pairs);
-        console.log("chabarebuli sagnebis", gpa_semester)
+        console.log("chabarebuli sagnebis GPA", gpa_semester)
 
         // შერჩევითი საშუალო კრედიტების წონის მიხედვიტ
         const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
@@ -58,10 +51,10 @@ function showGpaAfterElement(element, point_credit_pairs) {
         weighted_average_p.textContent = `შერჩევითი საშუალო ${weightedAverage.toFixed(2)} (${calcGradeLetter(points_sum / len)})`;
         element.insertAdjacentElement('afterend', weighted_average_p);
 
-        const average_points = document.createElement('p');
+        const average_points_p = document.createElement('p');
         // average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
-        average_points.textContent = `საშუალო ქულა ${(points_sum/len).toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
-        element.insertAdjacentElement('afterend', average_points);
+        average_points_p.textContent = `საშუალო ქულა ${(points_sum/len).toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
+        element.insertAdjacentElement('afterend', average_points_p);
 
         const finished_count_p = document.createElement('p');
         finished_count_p.textContent = `ჩაბარებული საგნები ${point_credit_pairs.length}`;

@@ -60,19 +60,20 @@ function showGpaAfterElement(element, point_credit_pairs) {
 
         const average_points = document.createElement('p');
         // average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
-        average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
+        average_points.textContent = `საშუალო ქულა ${(points_sum/len).toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
         element.insertAdjacentElement('afterend', average_points);
 
         const finished_count_p = document.createElement('p');
         finished_count_p.textContent = `ჩაბარებული საგნები ${point_credit_pairs.length}`;
         element.insertAdjacentElement('afterend', finished_count_p);
 
-        const badge = document.createElement('p');
+        // GPA(S) = Σ(GPA x CR) / ΣCR
+        const gpa_p = document.createElement('p');
         const boldText = document.createElement('b');
-        badge.appendChild(boldText);
+        gpa_p.appendChild(boldText);
         // badge.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)} - Σ(GPA x CR) / ΣCR` ;
         boldText.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)}` ;
-        element.insertAdjacentElement('afterend', badge);
+        element.insertAdjacentElement('afterend', gpa_p);
     } else {
         console.log("not found element")
     }

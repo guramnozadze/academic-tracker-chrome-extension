@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "GPA-AUTO | BTU",
-  "version": "0.0.1",
-  "description": "BTU GPA | Realtime Calculator of Selected Courses",
+  "version": "0.0.2",
+  "description": "BTU Exclusive GPA Calculator of Current Semester's Completed Courses",
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",

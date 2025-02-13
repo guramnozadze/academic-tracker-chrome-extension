@@ -2,23 +2,25 @@ let extracted_point_credit_pairs = []; // [[POINT, CREDIT]]
 
 // Extracting points and credits from table (only finished classes)
 const table = document.querySelector('table');
-if (table && !window.location.href.includes("course/scores")) {
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-        const tds = row.querySelectorAll('td');
+if(!window.location.href.includes("course/scores")){
+    if (table) {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            const tds = row.querySelectorAll('td');
 
-        if (tds.length >= 2) {
-            if (tds[3] && tds[5] && tds[0].classList.contains('text-success')) {
-                const point = Number(tds[3].textContent.trim());
-                const credit = Number(tds[5].textContent.trim());
-                extracted_point_credit_pairs.push([point, credit]);
+            if (tds.length >= 2) {
+                if (tds[3] && tds[5] && tds[0].classList.contains('text-success')) {
+                    const point = Number(tds[3].textContent.trim());
+                    const credit = Number(tds[5].textContent.trim());
+                    extracted_point_credit_pairs.push([point, credit]);
+                }
             }
-        }
-    });
+        });
 
-    showGpaAfterElement(table, extracted_point_credit_pairs);
-} else {
-    console.log(table, "არჩეული კურსების TABLE Not Found");
+        showGpaAfterElement(table, extracted_point_credit_pairs);
+    } else {
+        console.log(table, "არჩეული კურსების TABLE Not Found");
+    }
 }
 
 // Calculating GPA Σ(GPA x CR) / ΣCR

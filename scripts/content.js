@@ -109,3 +109,51 @@ function calcGradeLetter(point){
     }
     return ''
 }
+
+const barriers = document.querySelectorAll('.barrier');
+if(barriers && barriers.length === 2){
+
+    for(const [index, barrierDiv] of barriers.entries()){
+        // New text that better explains this is for assignments/quizzes excluding midterm
+        //  paragraphElement.textContent = "შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები) მინიმალური ზღვარი | " + match[0] + "/" + match[1];
+
+
+        // if(!currentValue){
+        //     continue;
+        // }
+
+        // Get the progress bar and modify its color
+        const progressBar = barrierDiv.querySelector('.progress-bar');
+        if (progressBar) {
+            // Get current and Max Barrier Value
+            const currentValue = parseFloat(progressBar.getAttribute('aria-valuenow')).toFixed(2);
+            const barrierValue = parseFloat(progressBar.getAttribute('aria-valuemax')).toFixed(2);
+
+            // Change Text
+            const barrierParagraphElement = barrierDiv.querySelector('p');
+            const barrierText = barrierParagraphElement.textContent
+            const match = barrierText.match(/\d+\.?\d*/g); // This will match numbers including decimals
+            const maxValue = match ? parseFloat(match[0]) : 0; // Get the second number (18.86)
+
+
+            if(index === 0){
+                // barrierParagraphElement.textContent = barrierText.replace(barrierText, "შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები) მინიმალური ზღვარი " + barrierValue + " ", "")
+                barrierParagraphElement.textContent = `${barrierValue} - შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები და ა. შ.) მინიმალური ზღვარი | ` + maxValue + "/" + barrierValue + " (მაქს/მინ)";
+
+            }
+
+            if(index === 1){
+                barrierParagraphElement.textContent = ` ${barrierValue} - ფინალურზე დასაშვებად საჭირო ქულა (ყველა აქტივობიდან) მინიმალური ზღვარი | ` + maxValue + "/" + barrierValue + " (მაქს/მინ)";
+            }
+
+
+            // Change color based on whether it meets the minimum barrier
+            if (currentValue >= barrierValue) {
+                progressBar.style.backgroundColor = '#28a745'; // Green for pass
+                barrierDiv.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
+            } else {
+                progressBar.style.backgroundColor = '#dc3545'; // Red for fail
+            }
+        }
+    }
+}

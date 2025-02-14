@@ -74,7 +74,6 @@ function showGpaAfterElement(element, point_credit_pairs) {
     }
 }
 
-
 function calcGradeLetter(point){
     if(point === 100){
         return 'A+ Perfect'
@@ -141,24 +140,87 @@ if(window.location.href.includes("course/scores")) {
 
 
                 if (index === 0) {
-                    // barrierParagraphElement.textContent = barrierText.replace(barrierText, "შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები) მინიმალური ზღვარი " + barrierValue + " ", "")
-                    barrierParagraphElement.textContent = `${barrierValue} - შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები და ა. შ.) მინიმალური ზღვარი | ` + maxValue + "/" + barrierValue + " (მაქს/მინ)";
-
+                    // old text სემესტრული შეფასებების მინიმალური კომპეტენციის ზღვარი | 40/16.4
+                    barrierParagraphElement.innerHTML = `ყველა აქტივობის (ქვიზი, დავალება, პრეზენტაცია) ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
                 }
 
                 if (index === 1) {
-                    barrierParagraphElement.textContent = ` ${barrierValue} - ფინალურზე დასაშვებად საჭირო ქულა (ყველა აქტივობიდან) მინიმალური ზღვარი | ` + maxValue + "/" + barrierValue + " (მაქს/მინ)";
+                    // old text შუალედური შეფასებების მინიმალური კომპეტენციის ზღვარი | 70/28.7
+                    barrierParagraphElement.innerHTML = `შუალედური + ყველა აქტივობის ფინალურზე დასაშვები მინიმალური ზღვარი - <b>${barrierValue}</b>`;
+					insertExclamationIconInfo(barrierParagraphElement, barrierValue)
                 }
 
 
                 // Change color based on whether it meets the minimum barrier
                 if (currentValue >= barrierValue) {
                     progressBar.style.backgroundColor = '#28a745'; // Green for pass
-                    barrierDiv.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
+					progressBar.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
                 } else {
                     progressBar.style.backgroundColor = '#dc3545'; // Red for fail
                 }
+
+                // ** Injecting max value inside progress bar
+                // ** Injecting max value inside progress bar
+                // ** Injecting max value inside progress bar
+                progressBar.parentElement.style.position = 'relative'
+
+                // Create and style the max value element
+                const maxValueDiv = document.createElement('div');
+                maxValueDiv.style.position = 'absolute';
+                maxValueDiv.style.right = '16px';
+                maxValueDiv.style.top = '0';
+                maxValueDiv.textContent = `(მაქს: ${maxValue})`;
+                // maxValueDiv.style.color = '#6c757d'; // Bootstrap secondary color
+                maxValueDiv.style.fontSize = '1rem'; // 14px
+                maxValueDiv.style.lineHeight = progressBar.offsetHeight + 'px'; // Center vertically
+
+                progressBar.parentElement.appendChild(maxValueDiv);
             }
         }
     }
 }
+
+
+function insertExclamationIconInfo(element, minBarrier){
+
+	if(!element){
+		return
+	}
+
+	// TEXT ICON
+	const warningText = `შენიშვნა: თუ შუალედურში ჩაიჭერი, სხვა აქტივობებით დაგროვებული ${minBarrier || "მინიმალურ"} ქულა საკმარისი იქნება ფინალურზე გასასვლელად! თუ ფიქრობ რომ ვერ დააგროვებ რეკომენდირებულია დროულად! - ლექტორთან დალაპარაკება ან მეილზე მიწერა.`
+	const warningIcon = document.createElement('i');
+	warningIcon.className = 'icon-info-sign';
+	warningIcon.setAttribute('title', warningText);
+
+	// Add a unique class to the icon
+	warningIcon.className += ' guram-nozadze-warning-icon';
+
+	// Add style rules
+		const style = document.createElement('style');
+		style.textContent = `
+		.guram-nozadze-warning-icon {
+			padding-left: 8px;
+			cursor: help;
+			opacity: 0.55;
+			transition: opacity 0.2s ease;
+		}
+		.guram-nozadze-warning-icon:hover {
+			opacity: 1;
+		}
+	`;
+	document.head.appendChild(style);
+
+	// warningIcon.style.color = '#ffc107'; // Warning yellow color
+
+	// Find parent element and append the icon
+	// const parentElement = barriers[0].parentElement;
+	// const headingText = document.createElement('div');
+	// headingText.className = 'fw-bold mb-3'; // Bootstrap classes for bold text and margin
+	// headingText.textContent = 'შეფასების კომპონენტები და ბარიერები';
+	// headingText.appendChild(warningIcon);
+
+	// Insert heading before the barriers
+	element.appendChild(warningIcon);
+}
+

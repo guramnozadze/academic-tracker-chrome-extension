@@ -74,6 +74,47 @@ function showGpaAfterElement(element, point_credit_pairs) {
     }
 }
 
+function showCourseGpaAfterTable(table){
+    if(!table){
+        return;
+    }
+
+    // Select all rows in the table body
+    let rows = table.querySelectorAll("tbody tr");
+
+    // Get the last two rows
+    let lastTwoRows = Array.from(rows).slice(-2);
+
+    const point = lastTwoRows[0]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
+    const credit = lastTwoRows[1]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
+    if(credit > 0){
+        let newRow = document.createElement("tr");
+        // Create the first TD with class "warning"
+        let td1 = document.createElement("td");
+        td1.classList.add("success");
+        let strong1 = document.createElement("strong");
+        strong1.innerText = "GPA";
+        td1.appendChild(strong1);
+
+        // Create the second TD
+        let td2 = document.createElement("td");
+        let div = document.createElement("div");
+        div.style.paddingLeft = "20px"; // Add inline style
+        let strong2 = document.createElement("strong");
+        strong2.innerText = ((Number(point) - 50) * 0.06 + 1).toFixed(2);
+        div.appendChild(strong2);
+        td2.appendChild(div);
+
+        // Append TDs to the row
+        newRow.appendChild(td1);
+        newRow.appendChild(td2);
+
+        // Append the row to the table body
+        table.querySelector("tbody").appendChild(newRow)
+    }
+
+}
+
 function calcGradeLetter(point){
     if(point === 100){
         return 'A+ Perfect'
@@ -115,7 +156,6 @@ function calcGradeLetter(point){
 if(window.location.href.includes("course/scores")) {
     const barriers = document.querySelectorAll('.barrier');
     if (barriers && barriers.length === 2) {
-
         for (const [index, barrierDiv] of barriers.entries()) {
             // New text that better explains this is for assignments/quizzes excluding midterm
             //  paragraphElement.textContent = "შუალედური გამოცდის გარდა, დანარჩენი აქტივობების (ქვიზები, დავალებები) მინიმალური ზღვარი | " + match[0] + "/" + match[1];
@@ -141,12 +181,12 @@ if(window.location.href.includes("course/scores")) {
 
                 if (index === 0) {
                     // old text სემესტრული შეფასებების მინიმალური კომპეტენციის ზღვარი | 40/16.4
-                    barrierParagraphElement.innerHTML = `ყველა აქტივობის (ქვიზი, დავალება, პრეზენტაცია) ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
+                    barrierParagraphElement.innerHTML = `ყველა აქტივობის ჯამი, გარდა შუალედურისა - ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
                 }
 
                 if (index === 1) {
                     // old text შუალედური შეფასებების მინიმალური კომპეტენციის ზღვარი | 70/28.7
-                    barrierParagraphElement.innerHTML = `შუალედური + ყველა აქტივობის ფინალურზე დასაშვები მინიმალური ზღვარი - <b>${barrierValue}</b>`;
+                    barrierParagraphElement.innerHTML = `ყველა აქტივობისა და შუალედურის ჯამი - ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
 					insertExclamationIconInfo(barrierParagraphElement, barrierValue)
                 }
 
@@ -156,7 +196,17 @@ if(window.location.href.includes("course/scores")) {
                     progressBar.style.backgroundColor = '#28a745'; // Green for pass
 					progressBar.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
                 } else {
-                    progressBar.style.backgroundColor = '#dc3545'; // Red for fail
+					// Insert absolute green dash representing barrier
+                    const barrierIndicator = document.createElement('div');
+                    barrierIndicator.title = `ბარიერი - ${barrierValue}`;
+                    barrierIndicator.style.position = 'absolute';
+                    barrierIndicator.style.left = `${(barrierValue / maxValue) * 100}%`;
+                    barrierIndicator.style.height = '100%';
+                    barrierIndicator.style.width = '2px';  // width of the dash
+                    barrierIndicator.style.backgroundColor = '#28a745';  // Bootstrap success green
+                    barrierIndicator.style.zIndex = '1';   // ensure it's above the progress bar
+                    progressBar.parentElement.appendChild(barrierIndicator);
+
                 }
 
                 // ** Injecting max value inside progress bar
@@ -169,7 +219,12 @@ if(window.location.href.includes("course/scores")) {
                 maxValueDiv.style.position = 'absolute';
                 maxValueDiv.style.right = '16px';
                 maxValueDiv.style.top = '0';
-                maxValueDiv.textContent = `(მაქს: ${maxValue})`;
+                if(currentValue >= maxValue){
+                    maxValueDiv.textContent = `PERFECT`;
+                    maxValueDiv.style.color = "#FFF"
+                }else{
+                    maxValueDiv.textContent = `(მაქს: ${maxValue})`;
+                }
                 // maxValueDiv.style.color = '#6c757d'; // Bootstrap secondary color
                 maxValueDiv.style.fontSize = '1rem'; // 14px
                 maxValueDiv.style.lineHeight = progressBar.offsetHeight + 'px'; // Center vertically
@@ -178,6 +233,13 @@ if(window.location.href.includes("course/scores")) {
             }
         }
     }
+
+
+    //     INSERT GPA IN TABLE
+    //     INSERT GPA IN TABLE
+    //     INSERT GPA IN TABLE
+    const table = document.querySelector('table');
+    showCourseGpaAfterTable(table)
 }
 
 

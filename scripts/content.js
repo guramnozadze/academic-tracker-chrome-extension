@@ -1,27 +1,5 @@
 let extracted_point_credit_pairs = []; // [[POINT, CREDIT]]
 
-// Extracting points and credits from table (only finished classes)
-const table = document.querySelector('table');
-if(!window.location.href.includes("course/scores")){
-    if (table) {
-        const rows = table.querySelectorAll('tr');
-        rows.forEach(row => {
-            const tds = row.querySelectorAll('td');
-
-            if (tds.length >= 2) {
-                if (tds[3] && tds[5] && tds[0].classList.contains('text-success')) {
-                    const point = Number(tds[3].textContent.trim());
-                    const credit = Number(tds[5].textContent.trim());
-                    extracted_point_credit_pairs.push([point, credit]);
-                }
-            }
-        });
-
-        showGpaAfterElement(table, extracted_point_credit_pairs);
-    } else {
-        console.log(table, "არჩეული კურსების TABLE Not Found");
-    }
-}
 
 // Calculating GPA Σ(GPA x CR) / ΣCR
 function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
@@ -46,6 +24,9 @@ function showGpaAfterElement(element, point_credit_pairs) {
         const [gpa_semester, points_sum, len] = calculateGpa(point_credit_pairs);
         console.log("chabarebuli sagnebis GPA", gpa_semester)
 
+        // Brand
+        element.insertAdjacentHTML("afterend", `<span class="badge badge-success" style="margin-top:4px;background-color:#cb2d78;">BTU+</span>`)
+
         // შერჩევითი საშუალო კრედიტების წონის მიხედვიტ
         const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
             point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0);
@@ -67,8 +48,10 @@ function showGpaAfterElement(element, point_credit_pairs) {
         const boldText = document.createElement('b');
         gpa_p.appendChild(boldText);
         // badge.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)} - Σ(GPA x CR) / ΣCR` ;
-        boldText.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)}` ;
+        boldText.textContent = `სემესტრის GPA ${gpa_semester.toFixed(2)}` ;
         element.insertAdjacentElement('afterend', gpa_p);
+
+
     } else {
         console.log("not found element")
     }
@@ -91,9 +74,9 @@ function showCourseGpaAfterTable(table){
         let newRow = document.createElement("tr");
         // Create the first TD with class "warning"
         let td1 = document.createElement("td");
-        td1.classList.add("success");
+        td1.classList.add("warning");
         let strong1 = document.createElement("strong");
-        strong1.innerText = "GPA";
+        strong1.innerHTML = "GPA <span class=\"badge badge-success\" style=\"background-color:#cb2d78;\">BTU+</span>";
         td1.appendChild(strong1);
 
         // Create the second TD
@@ -101,7 +84,8 @@ function showCourseGpaAfterTable(table){
         let div = document.createElement("div");
         div.style.paddingLeft = "20px"; // Add inline style
         let strong2 = document.createElement("strong");
-        strong2.innerText = ((Number(point) - 50) * 0.06 + 1).toFixed(2);
+        strong2.style.color = "#cb2d78";
+        strong2.innerHTML = `${((Number(point) - 50) * 0.06 + 1).toFixed(2)}`;
         div.appendChild(strong2);
         td2.appendChild(div);
 
@@ -152,8 +136,76 @@ function calcGradeLetter(point){
     return ''
 }
 
+
+
+function insertExclamationIconInfo(element, minBarrier){
+
+	if(!element){
+		return
+	}
+
+	// TEXT ICON
+	const warningText = `შენიშვნა: თუ შუალედურში ჩაიჭერი, სხვა აქტივობებით დაგროვებული ${minBarrier || "მინიმალურ"} ქულა საკმარისი იქნება ფინალურზე გასასვლელად! თუ ფიქრობ რომ ვერ დააგროვებ რეკომენდირებულია დროულად! - ლექტორთან დალაპარაკება ან მეილზე მიწერა.`
+	const warningIcon = document.createElement('i');
+	warningIcon.className = 'icon-info-sign';
+	warningIcon.setAttribute('title', warningText);
+
+	// Add a unique class to the icon
+	warningIcon.className += ' guram-nozadze-warning-icon';
+
+	// Add style rules
+		const style = document.createElement('style');
+		style.textContent = `
+		.guram-nozadze-warning-icon {
+			padding-left: 8px;
+			cursor: help;
+			opacity: 0.55;
+			transition: opacity 0.2s ease;
+		}
+		.guram-nozadze-warning-icon:hover {
+			opacity: 1;
+		}
+	`;
+	document.head.appendChild(style);
+
+	// warningIcon.style.color = '#ffc107'; // Warning yellow color
+
+	// Find parent element and append the icon
+	// const parentElement = barriers[0].parentElement;
+	// const headingText = document.createElement('div');
+	// headingText.className = 'fw-bold mb-3'; // Bootstrap classes for bold text and margin
+	// headingText.textContent = 'შეფასების კომპონენტები და ბარიერები';
+	// headingText.appendChild(warningIcon);
+
+	// Insert heading before the barriers
+	element.appendChild(warningIcon);
+}
+
+// Extracting points and credits from table (only finished classes)
+if(window.location.href.includes("/courses") && !window.location.href.includes("/courses/scores")){
+    const table = document.querySelector('table');
+    if (table) {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            const tds = row.querySelectorAll('td');
+
+            if (tds.length >= 2) {
+                if (tds[3] && tds[5] && tds[0].classList.contains('text-success')) {
+                    const point = Number(tds[3].textContent.trim());
+                    const credit = Number(tds[5].textContent.trim());
+                    extracted_point_credit_pairs.push([point, credit]);
+                }
+            }
+        });
+
+        showGpaAfterElement(table, extracted_point_credit_pairs);
+    } else {
+        console.log(table, "არჩეული კურსების TABLE Not Found");
+    }
+}
+
 // Changing text and color of competence progress bar
-if(window.location.href.includes("course/scores")) {
+if(window.location.href.includes("/course/scores")) {
     const barriers = document.querySelectorAll('.barrier');
     if (barriers && barriers.length === 2) {
         for (const [index, barrierDiv] of barriers.entries()) {
@@ -187,16 +239,16 @@ if(window.location.href.includes("course/scores")) {
                 if (index === 1) {
                     // old text შუალედური შეფასებების მინიმალური კომპეტენციის ზღვარი | 70/28.7
                     barrierParagraphElement.innerHTML = `ყველა აქტივობისა და შუალედურის ჯამი - ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
-					insertExclamationIconInfo(barrierParagraphElement, barrierValue)
+                    insertExclamationIconInfo(barrierParagraphElement, barrierValue)
                 }
 
 
                 // Change color based on whether it meets the minimum barrier
                 if (currentValue >= barrierValue) {
                     progressBar.style.backgroundColor = '#28a745'; // Green for pass
-					progressBar.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
+                    progressBar.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
                 } else {
-					// Insert absolute green dash representing barrier
+                    // Insert absolute green dash representing barrier
                     const barrierIndicator = document.createElement('div');
                     barrierIndicator.title = `ბარიერი - ${barrierValue}`;
                     barrierIndicator.style.position = 'absolute';
@@ -243,46 +295,55 @@ if(window.location.href.includes("course/scores")) {
 }
 
 
-function insertExclamationIconInfo(element, minBarrier){
+if(window.location.href.includes("/student/card")){
+    const table = document.querySelector('table');
+    if (table) {
+        const rows = table.querySelectorAll('tr');
+        let GPA_ROW_INDEX;
+        let all_points_credits = [];
+        let semester_points_credits = [];
 
-	if(!element){
-		return
-	}
+        rows.forEach((row, i) => {
+            const tds = row.querySelectorAll('td');
+            if (tds?.[0]?.textContent.trim() === 'GPA'){
+                GPA_ROW_INDEX = i
+            }
+            if (tds.length === 4) {
+                const point = tds?.[3]?.textContent?.trim();
+                const credit = tds?.[2]?.textContent?.trim();
 
-	// TEXT ICON
-	const warningText = `შენიშვნა: თუ შუალედურში ჩაიჭერი, სხვა აქტივობებით დაგროვებული ${minBarrier || "მინიმალურ"} ქულა საკმარისი იქნება ფინალურზე გასასვლელად! თუ ფიქრობ რომ ვერ დააგროვებ რეკომენდირებულია დროულად! - ლექტორთან დალაპარაკება ან მეილზე მიწერა.`
-	const warningIcon = document.createElement('i');
-	warningIcon.className = 'icon-info-sign';
-	warningIcon.setAttribute('title', warningText);
+                if(isNumber(credit) && Number(credit) !== 0) {
+                    if(isNumber(point)){
+                        semester_points_credits.push([Number(point), Number(credit)]);
+                        all_points_credits.push([Number(point), Number(credit)]);
+                    }else{
+                        if (Number(credit) === semester_points_credits.reduce((acc, [_, credit]) => acc + credit, 0)) {
+                            // we have hit bottom of semester and siplay GPA at point 'td'
+                            const [GPA, points_sum, chabarebuli_sagnebi] = calculateGpa(semester_points_credits)
+                            semester_points_credits = [];
+                            tds[3].setAttribute("align", "center")
+                            tds[3].innerHTML = `<b>GPA ${GPA.toFixed(2)}</b>`
+                        }
+                    }
 
-	// Add a unique class to the icon
-	warningIcon.className += ' guram-nozadze-warning-icon';
+                }
+            }
+        });
 
-	// Add style rules
-		const style = document.createElement('style');
-		style.textContent = `
-		.guram-nozadze-warning-icon {
-			padding-left: 8px;
-			cursor: help;
-			opacity: 0.55;
-			transition: opacity 0.2s ease;
-		}
-		.guram-nozadze-warning-icon:hover {
-			opacity: 1;
-		}
-	`;
-	document.head.appendChild(style);
+        if(GPA_ROW_INDEX){
+            const GPA_ROW = table.querySelectorAll('tr')[GPA_ROW_INDEX];
+            console.log(GPA_ROW)
 
-	// warningIcon.style.color = '#ffc107'; // Warning yellow color
-
-	// Find parent element and append the icon
-	// const parentElement = barriers[0].parentElement;
-	// const headingText = document.createElement('div');
-	// headingText.className = 'fw-bold mb-3'; // Bootstrap classes for bold text and margin
-	// headingText.textContent = 'შეფასების კომპონენტები და ბარიერები';
-	// headingText.appendChild(warningIcon);
-
-	// Insert heading before the barriers
-	element.appendChild(warningIcon);
+            const [GPA, points_sum, chabarebuli_sagnebi] = calculateGpa(all_points_credits)
+            const newButPlusGPARow = GPA_ROW.cloneNode(true)
+            newButPlusGPARow.querySelectorAll('td')[0].innerHTML = `GPA <span class="badge badge-success" style="background-color:#cb2d78;">BTU+</span> `;
+            newButPlusGPARow.querySelectorAll('td')[1].innerHTML = `<b style="color:#cb2d78;">${GPA.toFixed(2)}<b/>`;
+            GPA_ROW.insertAdjacentElement("afterend", newButPlusGPARow);
+        }
+    }
 }
 
+function isNumber(str){
+    if(!str) return false;
+    return !isNaN(Number(str))
+}

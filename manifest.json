@@ -9,13 +9,15 @@
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
   },
+  "minimum_chrome_version": "116",
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
       "matches": [
         "https://classroom.btu.edu.ge/ge/student/me/courses",
         "https://classroom.btu.edu.ge/ge/student/me/course/scores/*/*",
-        "https://classroom.btu.edu.ge/ge/student/card"
+        "https://classroom.btu.edu.ge/ge/student/card",
+        "https://classroom.btu.edu.ge/ge/student/me/schedule"
       ]
     }
   ]

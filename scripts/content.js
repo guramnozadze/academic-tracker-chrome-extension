@@ -1,6 +1,115 @@
 let extracted_point_credit_pairs = []; // [[POINT, CREDIT]]
+if(window.location.href.includes("/schedule")){
+    // Changing Table
+    const table = document.querySelector('table');
+    const originalTableHTML = table.innerHTML; // Store the original table content
+
+    function renderTable(){
+        const table = document.querySelector('table');
+        const rows = table.querySelectorAll('tr.tip.btu_plus');
+        rows.forEach((row, rowIndex) => {
+            const cells = row.querySelectorAll('td')
+            cells.forEach((cell,index) => {
+                cell.style.whiteSpace = 'nowrap';
+                cell.style.padding = '12px';
+                cell.style.paddingLeft = '8px';
+                switch (index){
+                    case 1:
+                        if(!cell.textContent.includes('ონლაინ')){
+                        }
+                        break;
+                    case 2:
+                        const prevRow = rows[rowIndex - 1];
+                        if(cell.textContent.trim() === prevRow?.querySelectorAll('td')?.[2]?.textContent?.trim()){
+                            // remove element
+                            prevRow.remove()
+                            const time = cells[0].textContent.trim(); // Get the time string
+                            const [start, end] = time.split(' - '); // Split into start and end times
+
+                            function adjustTime(timeStr, hourDiff, minDiff) {
+                                let [hours, minutes] = timeStr.split(':').map(Number);
+                                hours = (hours + hourDiff + 24) % 24; // Adjust hours, ensuring it wraps correctly
+                                minutes += minDiff;
+
+                                if (minutes >= 60) {
+                                    hours += Math.floor(minutes / 60);
+                                    minutes %= 60;
+                                }
+
+                                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                            }
+
+                            const newStart = adjustTime(start, -1, 0);  // Decrease start time by 1 hour
+                            const newEnd = adjustTime(end, 0, 10);     // Increase end time by 10 minutes;
+
+                            cells[0].textContent = `${newStart} - ${newEnd}`; // Update the cell
+                            cells[0].style.fontWeight = '600'; // Update the cell
+                            cells[0].style.paddingRight = '20px'; // Update the cell
+                            // Decrease time by 1 hour 10:00 - 10:50 =>>>> 09:00 - 11:00
+                            // cells[0].textContent = ""
+                            cell.textContent = cell.textContent.split('-').slice(2).join('-').trim();
+
+                        }
+                        break;
+                    case 3:
+
+                }
+
+            })
+        })
+    }
 
 
+    // Append a switch to change a table or not
+    const element = document.querySelector('legend');
+    if (element) {
+        btu_plus_enabled = localStorage.getItem('btu_plus_enabled') === "1";
+
+        const switchContainer = document.createElement('label');
+        switchContainer.style.display = 'inline-flex';
+        switchContainer.style.alignItems = 'center';
+        switchContainer.style.marginLeft = '15px';
+        switchContainer.style.cursor = 'pointer';
+        switchContainer.innerHTML = `
+        <input type="checkbox" id="tableToggle"  style="margin-right: 8px; margin-top: -1px;">
+        <span class="badge badge-success" id="btu_plus_badge">BTU+</span>
+    `;
+        element.appendChild(switchContainer);
+        document.getElementById('tableToggle').checked = btu_plus_enabled;
+
+        // Get the checkbox
+        const tableToggle = document.getElementById('tableToggle');
+
+        // Function to toggle table changes
+        function toggleTableChanges(enabled) {
+            const rows = document.querySelectorAll('tr.tip');
+            if(enabled){
+                rows.forEach(row => {
+                    if(enabled){
+                        row.classList.add('btu_plus')
+                    }else{
+                        row.classList.remove('btu_plus')
+                    }
+                });
+            }else{
+                table.innerHTML = originalTableHTML
+            }
+            localStorage.setItem("btu_plus_enabled", enabled ? "1" : "0");
+            document.getElementById("btu_plus_badge").style.backgroundColor = enabled ? '#cb2d78' : '#BDBDBD';
+            document.getElementById("btu_plus_badge").style.userSelect = "none";
+            renderTable()
+
+        }
+
+        // Add event listener to checkbox
+        tableToggle.addEventListener('change', (e) => {
+            toggleTableChanges(e.target.checked);
+        });
+
+        // Initialize the table state
+        toggleTableChanges(tableToggle.checked);
+    }
+}
 // Calculating GPA Σ(GPA x CR) / ΣCR
 function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
     const credits_sum = point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0)
@@ -22,10 +131,7 @@ function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
 function showGpaAfterElement(element, point_credit_pairs) {
     if (element) {
         const [gpa_semester, points_sum, len] = calculateGpa(point_credit_pairs);
-        console.log("chabarebuli sagnebis GPA", gpa_semester)
 
-        // Brand
-        element.insertAdjacentHTML("afterend", `<span class="badge badge-success" style="margin-top:4px;background-color:#cb2d78;">BTU+</span>`)
 
         // შერჩევითი საშუალო კრედიტების წონის მიხედვიტ
         const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
@@ -51,6 +157,8 @@ function showGpaAfterElement(element, point_credit_pairs) {
         boldText.textContent = `სემესტრის GPA ${gpa_semester.toFixed(2)}` ;
         element.insertAdjacentElement('afterend', gpa_p);
 
+        // Brand
+        gpa_p.insertAdjacentHTML("beforeend", `<span class="badge badge-success" style="margin-left:8px;margin-top:4px;background-color:#cb2d78;">BTU+</span>`)
 
     } else {
         console.log("not found element")

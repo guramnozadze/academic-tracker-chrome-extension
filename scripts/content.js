@@ -110,6 +110,7 @@ if(window.location.href.includes("/schedule")){
         toggleTableChanges(tableToggle.checked);
     }
 }
+
 // Calculating GPA Σ(GPA x CR) / ΣCR
 function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
     const credits_sum = point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0)
@@ -244,8 +245,6 @@ function calcGradeLetter(point){
     return ''
 }
 
-
-
 function insertExclamationIconInfo(element, minBarrier){
 
 	if(!element){
@@ -289,6 +288,12 @@ function insertExclamationIconInfo(element, minBarrier){
 	element.appendChild(warningIcon);
 }
 
+
+function isNumber(str){
+    if(!str) return false;
+    return !isNaN(Number(str))
+}
+
 // Extracting points and credits from table (only finished classes)
 if(window.location.href.includes("/courses") && !window.location.href.includes("/courses/scores")){
     const table = document.querySelector('table');
@@ -306,7 +311,10 @@ if(window.location.href.includes("/courses") && !window.location.href.includes("
             }
         });
 
-        showGpaAfterElement(table, extracted_point_credit_pairs);
+        // Bug fix
+        if(extracted_point_credit_pairs.length > 0){
+            showGpaAfterElement(table, extracted_point_credit_pairs);
+        }
     } else {
         console.log(table, "არჩეული კურსების TABLE Not Found");
     }
@@ -402,7 +410,6 @@ if(window.location.href.includes("/course/scores")) {
     showCourseGpaAfterTable(table)
 }
 
-
 if(window.location.href.includes("/student/card")){
     const table = document.querySelector('table');
     if (table) {
@@ -449,9 +456,4 @@ if(window.location.href.includes("/student/card")){
             GPA_ROW.insertAdjacentElement("afterend", newButPlusGPARow);
         }
     }
-}
-
-function isNumber(str){
-    if(!str) return false;
-    return !isNaN(Number(str))
 }

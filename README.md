@@ -1,6 +1,6 @@
-# Tutorial: Run scripts on every page
+# BTU Plus Reworked Classroom
 
-This sample demonstrates how to run scripts on any Chrome extension and Chrome Web Store documentation page using an extension called _Reading Time_.
+[BTU PLUS Chrome Extension](https://chromewebstore.google.com/detail/btu+-plus-reworked-pages/ebfenlngaocdpllcejeemfbmnfhhenbh)
 
 ## Overview
 

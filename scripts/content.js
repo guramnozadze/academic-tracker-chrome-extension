@@ -4,6 +4,56 @@ if(window.location.href.includes("/schedule")){
     const table = document.querySelector('table');
     const originalTableHTML = table.innerHTML; // Store the original table content
 
+    // Append a switch to change a table or not
+    const element = document.querySelector('legend');
+    if (element) {
+        btu_plus_enabled = localStorage.getItem('btu_plus_enabled') === "1";
+
+        const switchContainer = document.createElement('label');
+        switchContainer.style.display = 'inline-flex';
+        switchContainer.style.alignItems = 'center';
+        switchContainer.style.marginLeft = '15px';
+        switchContainer.style.cursor = 'pointer';
+        switchContainer.innerHTML = `
+            <input type="checkbox" id="tableToggle"  style="margin-right: 8px; margin-top: -1px;">
+            <span class="badge badge-success" id="btu_plus_badge">BTU+</span>
+        `;
+        element.appendChild(switchContainer);
+        document.getElementById('tableToggle').checked = btu_plus_enabled;
+
+        // Get the checkbox
+        const tableToggle = document.getElementById('tableToggle');
+
+        // Function to toggle table changes
+        function toggleTableChanges(enabled) {
+            const rows = document.querySelectorAll('tr.tip');
+            if(enabled){
+                rows.forEach(row => {
+                    if(enabled){
+                        row.classList.add('btu_plus');
+                        changeDamatebitiInformaciaStyles();
+                        renderTable();
+                    }else{
+                        row.classList.remove('btu_plus')
+                    }
+                });
+            }else{
+                table.innerHTML = originalTableHTML
+            }
+            localStorage.setItem("btu_plus_enabled", enabled ? "1" : "0");
+            document.getElementById("btu_plus_badge").style.backgroundColor = enabled ? '#cb2d78' : '#BDBDBD';
+            document.getElementById("btu_plus_badge").style.userSelect = "none";
+        }
+
+        // Add event listener to checkbox
+        tableToggle.addEventListener('change', (e) => {
+            toggleTableChanges(e.target.checked);
+        });
+
+        // Initialize the table state
+        toggleTableChanges(tableToggle.checked);
+    }
+
     function renderTable(){
         const table = document.querySelector('table');
         const rows = table.querySelectorAll('tr.tip.btu_plus');
@@ -14,10 +64,7 @@ if(window.location.href.includes("/schedule")){
                 cell.style.padding = '12px';
                 cell.style.paddingLeft = '8px';
                 switch (index){
-                    case 1:
-                        if(!cell.textContent.includes('ონლაინ')){
-                        }
-                        break;
+                    // კურსის დასახელება CONTENT
                     case 2:
                         const prevRow = rows[rowIndex - 1];
                         if(cell.textContent.trim() === prevRow?.querySelectorAll('td')?.[2]?.textContent?.trim()){
@@ -51,247 +98,29 @@ if(window.location.href.includes("/schedule")){
 
                         }
                         break;
-                    case 3:
 
+                    // დამ. ინფორმაცია CONTENT
+                    case 5:
+                        cell.style.whiteSpace = 'pre-line';
+                        break;
                 }
-
             })
         })
     }
 
-
-    // Append a switch to change a table or not
-    const element = document.querySelector('legend');
-    if (element) {
-        btu_plus_enabled = localStorage.getItem('btu_plus_enabled') === "1";
-
-        const switchContainer = document.createElement('label');
-        switchContainer.style.display = 'inline-flex';
-        switchContainer.style.alignItems = 'center';
-        switchContainer.style.marginLeft = '15px';
-        switchContainer.style.cursor = 'pointer';
-        switchContainer.innerHTML = `
-        <input type="checkbox" id="tableToggle"  style="margin-right: 8px; margin-top: -1px;">
-        <span class="badge badge-success" id="btu_plus_badge">BTU+</span>
-    `;
-        element.appendChild(switchContainer);
-        document.getElementById('tableToggle').checked = btu_plus_enabled;
-
-        // Get the checkbox
-        const tableToggle = document.getElementById('tableToggle');
-
-        // Function to toggle table changes
-        function toggleTableChanges(enabled) {
-            const rows = document.querySelectorAll('tr.tip');
-            if(enabled){
-                rows.forEach(row => {
-                    if(enabled){
-                        row.classList.add('btu_plus')
-                    }else{
-                        row.classList.remove('btu_plus')
-                    }
-                });
-            }else{
-                table.innerHTML = originalTableHTML
-            }
-            localStorage.setItem("btu_plus_enabled", enabled ? "1" : "0");
-            document.getElementById("btu_plus_badge").style.backgroundColor = enabled ? '#cb2d78' : '#BDBDBD';
-            document.getElementById("btu_plus_badge").style.userSelect = "none";
-            renderTable()
-
-        }
-
-        // Add event listener to checkbox
-        tableToggle.addEventListener('change', (e) => {
-            toggleTableChanges(e.target.checked);
-        });
-
-        // Initialize the table state
-        toggleTableChanges(tableToggle.checked);
+    function changeDamatebitiInformaciaStyles(){
+        const table = document.querySelector('table');
+        const rows = table.querySelectorAll('tr:not([class])');
+        rows.forEach((row, rowIndex) => {
+            const cells = row.querySelectorAll('td');
+            cells[5].title = 'დამaტებითი ინფორმაცია'
+            cells[5].querySelector('b').textContent = 'დამ. ინფორმაცია'
+            cells[5].style.whiteSpace = 'nowrap';
+            cells[5].style.overflow = 'hidden';
+            cells[5].style.textOverflow = 'ellipsis';
+            // cells[5].style.maxWidth = "150px";
+        })
     }
-}
-
-// Calculating GPA Σ(GPA x CR) / ΣCR
-function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
-    const credits_sum = point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0)
-    const points_sum = point_credit_pairs.reduce((acc, [point, _]) => acc + point, 0)
-
-    // GPA(S) = Σ(GPA x CR) / ΣCR
-    const gpa_times_credits_sum = point_credit_pairs.reduce((acc, [point, credit]) => {
-            const gpa_per_class = (point - 50) * 0.06 + 1
-
-            const gpa_times_credit = gpa_per_class * credit;
-            return acc + gpa_times_credit;
-        }
-        , 0)
-
-    // GPA of finished classes so far
-    return [gpa_times_credits_sum / credits_sum, points_sum, point_credit_pairs.length];
-}
-
-function showGpaAfterElement(element, point_credit_pairs) {
-    if (element) {
-        const [gpa_semester, points_sum, len] = calculateGpa(point_credit_pairs);
-
-
-        // შერჩევითი საშუალო კრედიტების წონის მიხედვიტ
-        const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
-            point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0);
-        const weighted_average_p = document.createElement('p');
-        weighted_average_p.textContent = `შერჩევითი საშუალო ${weightedAverage.toFixed(2)} (${calcGradeLetter(points_sum / len)})`;
-        element.insertAdjacentElement('afterend', weighted_average_p);
-
-        const average_points_p = document.createElement('p');
-        // average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
-        average_points_p.textContent = `საშუალო ქულა ${(points_sum/len).toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
-        element.insertAdjacentElement('afterend', average_points_p);
-
-        const finished_count_p = document.createElement('p');
-        finished_count_p.textContent = `ჩაბარებული საგნები ${point_credit_pairs.length}`;
-        element.insertAdjacentElement('afterend', finished_count_p);
-
-        // GPA(S) = Σ(GPA x CR) / ΣCR
-        const gpa_p = document.createElement('p');
-        const boldText = document.createElement('b');
-        gpa_p.appendChild(boldText);
-        // badge.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)} - Σ(GPA x CR) / ΣCR` ;
-        boldText.textContent = `სემესტრის GPA ${gpa_semester.toFixed(2)}` ;
-        element.insertAdjacentElement('afterend', gpa_p);
-
-        // Brand
-        gpa_p.insertAdjacentHTML("beforeend", `<span class="badge badge-success" style="margin-left:8px;margin-top:4px;background-color:#cb2d78;">BTU+</span>`)
-
-    } else {
-        console.log("not found element")
-    }
-}
-
-function showCourseGpaAfterTable(table){
-    if(!table){
-        return;
-    }
-
-    // Select all rows in the table body
-    let rows = table.querySelectorAll("tbody tr");
-
-    // Get the last two rows
-    let lastTwoRows = Array.from(rows).slice(-2);
-
-    const point = lastTwoRows[0]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
-    const credit = lastTwoRows[1]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
-    if(credit > 0){
-        let newRow = document.createElement("tr");
-        // Create the first TD with class "warning"
-        let td1 = document.createElement("td");
-        td1.classList.add("warning");
-        let strong1 = document.createElement("strong");
-        strong1.innerHTML = "GPA <span class=\"badge badge-success\" style=\"background-color:#cb2d78;\">BTU+</span>";
-        td1.appendChild(strong1);
-
-        // Create the second TD
-        let td2 = document.createElement("td");
-        let div = document.createElement("div");
-        div.style.paddingLeft = "20px"; // Add inline style
-        let strong2 = document.createElement("strong");
-        strong2.style.color = "#cb2d78";
-        strong2.innerHTML = `${((Number(point) - 50) * 0.06 + 1).toFixed(2)}`;
-        div.appendChild(strong2);
-        td2.appendChild(div);
-
-        // Append TDs to the row
-        newRow.appendChild(td1);
-        newRow.appendChild(td2);
-
-        // Append the row to the table body
-        table.querySelector("tbody").appendChild(newRow)
-    }
-
-}
-
-function calcGradeLetter(point){
-    if(point === 100){
-        return 'A+ Perfect'
-    }
-    if(point > 95){
-        return 'A+'
-    }
-    if(point > 90){
-        return 'A'
-    }
-    if(point > 85){
-        return 'B+'
-    }
-    if(point > 80){
-        return 'B'
-    }
-    if(point > 75){
-        return 'C+'
-    }
-    if(point > 70){
-        return 'C'
-    }
-    if(point > 65){
-        return 'D+'
-    }
-    if(point > 60){
-        return 'D'
-    }
-    if(point > 55){
-        return 'C+'
-    }
-    if(point > 50){
-        return 'C'
-    }
-    return ''
-}
-
-function insertExclamationIconInfo(element, minBarrier){
-
-	if(!element){
-		return
-	}
-
-	// TEXT ICON
-	const warningText = `შენიშვნა: თუ შუალედურში ჩაიჭერი, სხვა აქტივობებით დაგროვებული ${minBarrier || "მინიმალურ"} ქულა საკმარისი იქნება ფინალურზე გასასვლელად! თუ ფიქრობ რომ ვერ დააგროვებ რეკომენდირებულია დროულად! - ლექტორთან დალაპარაკება ან მეილზე მიწერა.`
-	const warningIcon = document.createElement('i');
-	warningIcon.className = 'icon-info-sign';
-	warningIcon.setAttribute('title', warningText);
-
-	// Add a unique class to the icon
-	warningIcon.className += ' guram-nozadze-warning-icon';
-
-	// Add style rules
-		const style = document.createElement('style');
-		style.textContent = `
-		.guram-nozadze-warning-icon {
-			padding-left: 8px;
-			cursor: help;
-			opacity: 0.55;
-			transition: opacity 0.2s ease;
-		}
-		.guram-nozadze-warning-icon:hover {
-			opacity: 1;
-		}
-	`;
-	document.head.appendChild(style);
-
-	// warningIcon.style.color = '#ffc107'; // Warning yellow color
-
-	// Find parent element and append the icon
-	// const parentElement = barriers[0].parentElement;
-	// const headingText = document.createElement('div');
-	// headingText.className = 'fw-bold mb-3'; // Bootstrap classes for bold text and margin
-	// headingText.textContent = 'შეფასების კომპონენტები და ბარიერები';
-	// headingText.appendChild(warningIcon);
-
-	// Insert heading before the barriers
-	element.appendChild(warningIcon);
-}
-
-
-function isNumber(str){
-    if(!str) return false;
-    return !isNaN(Number(str))
 }
 
 // Extracting points and credits from table (only finished classes)
@@ -456,4 +285,187 @@ if(window.location.href.includes("/student/card")){
             GPA_ROW.insertAdjacentElement("afterend", newButPlusGPARow);
         }
     }
+}
+
+
+// Calculating GPA Σ(GPA x CR) / ΣCR
+function calculateGpa(point_credit_pairs) {  // [[POINT, CREDIT]]
+    const credits_sum = point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0)
+    const points_sum = point_credit_pairs.reduce((acc, [point, _]) => acc + point, 0)
+
+    // GPA(S) = Σ(GPA x CR) / ΣCR
+    const gpa_times_credits_sum = point_credit_pairs.reduce((acc, [point, credit]) => {
+            const gpa_per_class = (point - 50) * 0.06 + 1
+
+            const gpa_times_credit = gpa_per_class * credit;
+            return acc + gpa_times_credit;
+        }
+        , 0)
+
+    // GPA of finished classes so far
+    return [gpa_times_credits_sum / credits_sum, points_sum, point_credit_pairs.length];
+}
+
+function showGpaAfterElement(element, point_credit_pairs) {
+    if (element) {
+        const [gpa_semester, points_sum, len] = calculateGpa(point_credit_pairs);
+
+
+        // შერჩევითი საშუალო კრედიტების წონის მიხედვიტ
+        const weightedAverage = point_credit_pairs.reduce((acc, [point, credit]) => acc + (point * credit), 0) /
+            point_credit_pairs.reduce((acc, [_, credit]) => acc + credit, 0);
+        const weighted_average_p = document.createElement('p');
+        weighted_average_p.textContent = `შერჩევითი საშუალო ${weightedAverage.toFixed(2)} (${calcGradeLetter(points_sum / len)})`;
+        element.insertAdjacentElement('afterend', weighted_average_p);
+
+        const average_points_p = document.createElement('p');
+        // average_points.textContent = `საშუალო ქულა ${points_sum/len.toFixed(2)} - (${points_sum}/${len})`;
+        average_points_p.textContent = `საშუალო ქულა ${(points_sum/len).toFixed(2)} (${calcGradeLetter(points_sum/len)})`;
+        element.insertAdjacentElement('afterend', average_points_p);
+
+        const finished_count_p = document.createElement('p');
+        finished_count_p.textContent = `ჩაბარებული საგნები ${point_credit_pairs.length}`;
+        element.insertAdjacentElement('afterend', finished_count_p);
+
+        // GPA(S) = Σ(GPA x CR) / ΣCR
+        const gpa_p = document.createElement('p');
+        const boldText = document.createElement('b');
+        gpa_p.appendChild(boldText);
+        // badge.textContent = `მიმდინარე GPA ${gpa_semester.toFixed(2)} - Σ(GPA x CR) / ΣCR` ;
+        boldText.textContent = `სემესტრის GPA ${gpa_semester.toFixed(2)}` ;
+        element.insertAdjacentElement('afterend', gpa_p);
+
+        // Brand
+        gpa_p.insertAdjacentHTML("beforeend", `<span class="badge badge-success" style="margin-left:8px;margin-top:4px;background-color:#cb2d78;">BTU+</span>`)
+
+    } else {
+        console.log("not found element")
+    }
+}
+
+function showCourseGpaAfterTable(table){
+    if(!table){
+        return;
+    }
+
+    // Select all rows in the table body
+    let rows = table.querySelectorAll("tbody tr");
+
+    // Get the last two rows
+    let lastTwoRows = Array.from(rows).slice(-2);
+
+    const point = lastTwoRows[0]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
+    const credit = lastTwoRows[1]?.querySelectorAll('td')?.[1]?.innerText ?? 0;
+    if(credit > 0){
+        let newRow = document.createElement("tr");
+        // Create the first TD with class "warning"
+        let td1 = document.createElement("td");
+        td1.classList.add("warning");
+        let strong1 = document.createElement("strong");
+        strong1.innerHTML = "GPA <span class=\"badge badge-success\" style=\"background-color:#cb2d78;\">BTU+</span>";
+        td1.appendChild(strong1);
+
+        // Create the second TD
+        let td2 = document.createElement("td");
+        let div = document.createElement("div");
+        div.style.paddingLeft = "20px"; // Add inline style
+        let strong2 = document.createElement("strong");
+        strong2.style.color = "#cb2d78";
+        strong2.innerHTML = `${((Number(point) - 50) * 0.06 + 1).toFixed(2)}`;
+        div.appendChild(strong2);
+        td2.appendChild(div);
+
+        // Append TDs to the row
+        newRow.appendChild(td1);
+        newRow.appendChild(td2);
+
+        // Append the row to the table body
+        table.querySelector("tbody").appendChild(newRow)
+    }
+
+}
+
+function calcGradeLetter(point){
+    if(point === 100){
+        return 'A+ Perfect'
+    }
+    if(point > 95){
+        return 'A+'
+    }
+    if(point > 90){
+        return 'A'
+    }
+    if(point > 85){
+        return 'B+'
+    }
+    if(point > 80){
+        return 'B'
+    }
+    if(point > 75){
+        return 'C+'
+    }
+    if(point > 70){
+        return 'C'
+    }
+    if(point > 65){
+        return 'D+'
+    }
+    if(point > 60){
+        return 'D'
+    }
+    if(point > 55){
+        return 'C+'
+    }
+    if(point > 50){
+        return 'C'
+    }
+    return ''
+}
+
+function insertExclamationIconInfo(element, minBarrier){
+
+    if(!element){
+        return
+    }
+
+    // TEXT ICON
+    const warningText = `შენიშვნა: თუ შუალედურში ჩაიჭერი, სხვა აქტივობებით დაგროვებული ${minBarrier || "მინიმალურ"} ქულა საკმარისი იქნება ფინალურზე გასასვლელად! თუ ფიქრობ რომ ვერ დააგროვებ რეკომენდირებულია დროულად! - ლექტორთან დალაპარაკება ან მეილზე მიწერა.`
+    const warningIcon = document.createElement('i');
+    warningIcon.className = 'icon-info-sign';
+    warningIcon.setAttribute('title', warningText);
+
+    // Add a unique class to the icon
+    warningIcon.className += ' guram-nozadze-warning-icon';
+
+    // Add style rules
+    const style = document.createElement('style');
+    style.textContent = `
+		.guram-nozadze-warning-icon {
+			padding-left: 8px;
+			cursor: help;
+			opacity: 0.55;
+			transition: opacity 0.2s ease;
+		}
+		.guram-nozadze-warning-icon:hover {
+			opacity: 1;
+		}
+	`;
+    document.head.appendChild(style);
+
+    // warningIcon.style.color = '#ffc107'; // Warning yellow color
+
+    // Find parent element and append the icon
+    // const parentElement = barriers[0].parentElement;
+    // const headingText = document.createElement('div');
+    // headingText.className = 'fw-bold mb-3'; // Bootstrap classes for bold text and margin
+    // headingText.textContent = 'შეფასების კომპონენტები და ბარიერები';
+    // headingText.appendChild(warningIcon);
+
+    // Insert heading before the barriers
+    element.appendChild(warningIcon);
+}
+
+function isNumber(str){
+    if(!str) return false;
+    return !isNaN(Number(str))
 }

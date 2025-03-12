@@ -1,10 +1,9 @@
+# Academic Tracker
+
+A Chrome extension that enhances university student portal (Exclusevely for BTU - Business and Technology University) with advanced GPA calculation, barrier progress visualization, and course management tools. This extension transforms standard academic interfaces into data-rich dashboards by dynamically injecting interactive UI elements and implementing intelligent data processing algorithms.
 ### Link to extension
 
 [BTU PLUS Chrome Extension](https://chromewebstore.google.com/detail/btu+-plus-reworked-pages/ebfenlngaocdpllcejeemfbmnfhhenbh)
-
-## Academic Tracker
-
-A Chrome extension that enhances university student portal (Exclusevely for BTU - Business and Technology University) with advanced GPA calculation, barrier progress visualization, and course management tools. This extension transforms standard academic interfaces into data-rich dashboards by dynamically injecting interactive UI elements and implementing intelligent data processing algorithms.
 
 ## Key Features
 

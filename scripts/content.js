@@ -166,8 +166,10 @@ if(window.location.href.includes("/course/scores")) {
             const progressBar = barrierDiv.querySelector('.progress-bar');
             if (progressBar) {
                 // Get current and Max Barrier Value
-                const currentValue = parseFloat(progressBar.getAttribute('aria-valuenow')).toFixed(2);
-                const barrierValue = parseFloat(progressBar.getAttribute('aria-valuemax')).toFixed(2);
+                const currentValue = parseFloat(progressBar.getAttribute('aria-valuenow'));
+                const barrierValue = parseFloat(progressBar.getAttribute('aria-valuemax'));
+                const displayCurrentValue = currentValue.toFixed(2);
+                const displayBarrierValue = barrierValue.toFixed(2);
 
                 // Change Text
                 const barrierParagraphElement = barrierDiv.querySelector('p');
@@ -178,26 +180,25 @@ if(window.location.href.includes("/course/scores")) {
 
                 if (index === 0) {
                     // old text სემესტრული შეფასებების მინიმალური კომპეტენციის ზღვარი | 40/16.4
-                    barrierParagraphElement.innerHTML = `ყველა აქტივობის ჯამი, გარდა შუალედურისა - ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
+                    barrierParagraphElement.innerHTML = `ყველა აქტივობის ჯამი, გარდა შუალედურისა - ფინალურზე დასაშვები ზღვარი - <b>${displayBarrierValue}</b>`;
                 }
 
                 if (index === 1) {
                     // old text შუალედური შეფასებების მინიმალური კომპეტენციის ზღვარი | 70/28.7
-                    barrierParagraphElement.innerHTML = `ყველა აქტივობისა და შუალედურის ჯამი - ფინალურზე დასაშვები ზღვარი - <b>${barrierValue}</b>`;
-                    insertExclamationIconInfo(barrierParagraphElement, barrierValue)
+                    barrierParagraphElement.innerHTML = `ყველა აქტივობისა და შუალედურის ჯამი - ფინალურზე დასაშვები ზღვარი - <b>${displayBarrierValue}</b>`;
+                    insertExclamationIconInfo(barrierParagraphElement, displayBarrierValue)
                 }
-
 
                 // Change color based on whether it meets the minimum barrier
                 if (currentValue >= barrierValue) {
                     progressBar.style.backgroundColor = '#28a745'; // Green for pass
-                    progressBar.setAttribute('title', `${barrierValue} ქულიანი ბარიერი გადალახულია`);
+                    progressBar.setAttribute('title', `${displayBarrierValue} ქულიანი ბარიერი გადალახულია`);
                 } else {
                     // Insert absolute green dash representing barrier
                     const barrierIndicator = document.createElement('div');
-                    barrierIndicator.title = `ბარიერი - ${barrierValue}`;
+                    barrierIndicator.title = `ბარიერი - ${displayBarrierValue}`;
                     barrierIndicator.style.position = 'absolute';
-                    barrierIndicator.style.left = `${(barrierValue / maxValue) * 100}%`;
+                    barrierIndicator.style.left = `${(displayBarrierValue / maxValue) * 100}%`;
                     barrierIndicator.style.height = '100%';
                     barrierIndicator.style.width = '2px';  // width of the dash
                     barrierIndicator.style.backgroundColor = '#28a745';  // Bootstrap success green
